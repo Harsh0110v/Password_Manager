@@ -14,21 +14,19 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)  
 
-    # Relationship to stored passwords
     password_entries = db.relationship('PasswordEntry', backref='owner', lazy=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
-
 
 class PasswordEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     site_name = db.Column(db.String(100), nullable=False)
     site_url = db.Column(db.String(200))
-    encrypted_username = db.Column(db.Text, nullable=False)   # encrypted actual username
-    encrypted_password = db.Column(db.Text, nullable=False)   # encrypted actual password
-    encrypted_notes = db.Column(db.Text, default='')           # encrypted additional notes
+    encrypted_username = db.Column(db.Text, nullable=False)   
+    encrypted_password = db.Column(db.Text, nullable=False)   
+    encrypted_notes = db.Column(db.Text, default='')          
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
