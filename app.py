@@ -6,12 +6,33 @@ from wtforms.validators import DataRequired, Length, EqualTo
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from datetime import datetime
+from cryptography.fernet import Fernet
+import os
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key-change-later'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pass_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+KEY_FILE = 'secret.key'
+
+def load_or_generate_key():
+    if not os.path.exists(KEY_FILE):
+        # Generate a new key and write it to the file
+        new_key = Fernet.generate_key()
+        with open(KEY_FILE, 'wb') as key_file:
+            key_file.write(new_key)
+        print("New encryption key generated and saved.")
+
+    # Read the key from the file
+    with open(KEY_FILE, 'rb') as key_file:
+        key = key_file.read()
+    return key
+    
+encryption_key = load_or_generate_key()
+cipher= Fernet(encryption_key)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,6 +56,12 @@ class PasswordEntry(db.Model):
 
     def __repr__(self):
         return f"<PasswordEntry {self.site_name}>"
+    
+def encrypt_data(plain_text):
+    return cipher.encrypt(plain_text.encode()).decode()
+
+def decrypt_data(encrypted_text):
+    return cipher.decrypt(encrypted_text.encode()).decode()
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=80)])
@@ -66,13 +93,10 @@ def home():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        # Check if username already exists
         existing_user = User.query.filter_by(username=form.username.data).first()
         if existing_user:
             flash('Username already taken. Choose a different one.', 'danger')
             return render_template('register.html', form=form)
-
-        # Hash the password
         hashed_pw = generate_password_hash(form.password.data)
         new_user = User(username=form.username.data, password_hash=hashed_pw)
         db.session.add(new_user)
@@ -105,9 +129,7 @@ def logout():
 @login_required
 def dashboard():
     return render_template('dashboard.html', username=session.get('username'))
-# -------------------- End Routes --------------------
 
-# Create tables
 with app.app_context():
     db.create_all()
     print("Database ready.")
