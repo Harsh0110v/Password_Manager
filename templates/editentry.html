@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Edit: {{ entry.site_name }}</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.site_name.label }}<br>{{ form.site_name(size=32) }}</p>
+        <p>{{ form.site_url.label }}<br>{{ form.site_url(size=32) }}</p>
+        <p>{{ form.username.label }}<br>{{ form.username(size=32) }}</p>
+        <p>{{ form.password.label }}<br>{{ form.password(size=32) }}</p>
+        <p>{{ form.notes.label }}<br>{{ form.notes(rows=4, cols=40) }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <p><a href="{{ url_for('dashboard') }}">Cancel</a></p>
+{% endblock %}
