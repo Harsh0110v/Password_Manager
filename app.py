@@ -15,6 +15,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pass_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+
 KEY_FILE = 'secret.key'
 
 def load_or_generate_key():
@@ -136,6 +138,7 @@ def add_entry():
     form = PasswordEntryForm()
     if form.validate_on_submit():
         user_id = session['user_id']
+        # Encrypt the sensitive fields
         enc_username = encrypt_data(form.username.data)
         enc_password = encrypt_data(form.password.data)
         enc_notes = encrypt_data(form.notes.data) if form.notes.data else encrypt_data('')
@@ -181,7 +184,6 @@ def edit_entry(entry_id):
 
     form = PasswordEntryForm()
     if form.validate_on_submit():
-
         entry.site_name = form.site_name.data
         entry.site_url = form.site_url.data
         entry.encrypted_username = encrypt_data(form.username.data)
@@ -191,7 +193,6 @@ def edit_entry(entry_id):
         flash('Entry updated successfully!', 'success')
         return redirect(url_for('dashboard'))
 
-    
     if request.method == 'GET':
         form.site_name.data = entry.site_name
         form.site_url.data = entry.site_url

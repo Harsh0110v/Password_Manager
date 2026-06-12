@@ -6,9 +6,26 @@
         <p>{{ form.site_name.label }}<br>{{ form.site_name(size=32) }}</p>
         <p>{{ form.site_url.label }}<br>{{ form.site_url(size=32) }}</p>
         <p>{{ form.username.label }}<br>{{ form.username(size=32) }}</p>
-        <p>{{ form.password.label }}<br>{{ form.password(size=32) }}</p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32, id="password_field") }}
+            <button type="button" onclick="generatePassword()">Generate Strong Password</button>
+        </p>
         <p>{{ form.notes.label }}<br>{{ form.notes(rows=4, cols=40) }}</p>
         <p>{{ form.submit() }}</p>
     </form>
     <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+
+<script>
+function generatePassword() {
+    const length = 16;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+    }
+    document.getElementById("password_field").value = password;
+}
+</script>
 {% endblock %}
