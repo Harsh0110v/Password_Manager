@@ -8,17 +8,32 @@ from functools import wraps
 from datetime import datetime
 from cryptography.fernet import Fernet
 import os
-
+from flask_wtf.csrf import CSRFProtect
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'dev-secret-key-change-later'
+SECRET_KEY_FILE = 'secret_key.txt'
+
+def load_or_generate_secret_key():
+    if not os.path.exists(SECRET_KEY_FILE):
+        # Generate a new random secret key
+        secret = os.urandom(24)
+        with open(SECRET_KEY_FILE, 'wb') as f:
+            f.write(secret)
+        print("New secret key generated.")
+    with open(SECRET_KEY_FILE, 'rb') as f:
+        return f.read()
+
+app.config['SECRET_KEY'] = load_or_generate_secret_key()
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pass_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
-
+csrf = CSRFProtect(app)
 KEY_FILE = 'secret.key'
 
+    
 def load_or_generate_key():
     if not os.path.exists(KEY_FILE):
         new_key = Fernet.generate_key()
@@ -85,9 +100,8 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 @app.route('/')
-def home():
-    return render_template('base.html')
-
+def home(): 
+    return render_template('home.html') 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
