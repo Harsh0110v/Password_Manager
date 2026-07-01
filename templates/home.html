@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Welcome to Your Secure Password Manager</h1>
-    <p>Store all your passwords encrypted, generate strong ones, and access them easily.</p>
-    {% if not session.user_id %}
-        <p><a href="{{ url_for('register') }}">Get Started – Register</a> | 
-           <a href="{{ url_for('login') }}">Login</a></p>
-    {% else %}
-        <p><a href="{{ url_for('dashboard') }}">Go to Dashboard</a></p>
-    {% endif %}
+    <div style="text-align: center;">
+        <h1 style="font-size: 2.5rem; background: linear-gradient(to right, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Secure Password Manager</h1>
+        <p style="font-size: 1.2rem; color: #555; margin: 20px 0;">Store all your passwords encrypted. Generate strong ones. Access them easily.</p>
+        {% if not session.user_id %}
+            <p style="margin-top: 30px;">
+                <a href="{{ url_for('register') }}" style="background: #667eea; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; margin-right: 15px;">Get Started</a>
+                <a href="{{ url_for('login') }}" style="background: #ddd; color: #333; padding: 12px 30px; border-radius: 6px; text-decoration: none;">Login</a>
+            </p>
+        {% else %}
+            <p><a href="{{ url_for('dashboard') }}" style="background: #667eea; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none;">Go to Dashboard</a></p>
+        {% endif %}
+    </div>
 {% endblock %}
